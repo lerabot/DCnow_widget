@@ -6,7 +6,7 @@ int totalUser;
 int playerOnline;
 int tSize = 11;
 int tSpace = 3;
-int updateTime = 30;
+int updateTime = 60;
 
 //SoundFile ding;
 
@@ -22,6 +22,7 @@ color white = #EBEBEB;
 void setup()
 {
   size(200, 300);
+  surface.setTitle("Dreamcast Now Widget");
   //noSmooth();
   lib15 = loadFont("font15.vlw");
   lib11 = loadFont("font11.vlw");
