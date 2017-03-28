@@ -1,23 +1,20 @@
 //import processing.sound.*;
+//SoundFile ding;
 
-JSONObject data;
-JSONArray player;
-int totalUser;
-int playerOnline;
+//General
 int tSize = 11;
 int tSpace = 3;
 int updateTime = 60;
 
-//SoundFile ding;
-
+//Fonts
 PFont lib11;
 PFont lib15;
 
+//Colors
 color dark = #151228;
 color green = #81F495;
 color gameColor = #3F43BA;
 color white = #EBEBEB;
-
 
 void setup()
 {
@@ -28,10 +25,6 @@ void setup()
   lib11 = loadFont("font11.vlw");
 
   //ding = new SoundFile(this, "radio.wav");
-
-  data = loadJSONObject("http://dreamcast.online/now/api/users.json");
-  totalUser = data.getInt("total_count");
-  player = data.getJSONArray("users");
   noStroke();
   display();
   //ellipseMode(CENTER);
@@ -65,15 +58,18 @@ void getOnlinePlayers()
   int c = 0;
   int cPlayer = 0;
   JSONObject p;
-
+  JSONObject data;
+  JSONArray player;
+  int totalUser;
+  int playerOnline;
+  
   data = loadJSONObject("http://dreamcast.online/now/api/users.json");
   totalUser = data.getInt("total_count");
   player = data.getJSONArray("users");
-  
+
   for (int i = 0; i < totalUser; i++)
   {
     p = player.getJSONObject(i);
-    //println(p.getString("username"));
     if (p.getBoolean("online") == true)
     {
       textFont(lib11);
@@ -104,6 +100,5 @@ void updateTime()
   textSize(11);
   textFont(lib11);
   textAlign(CENTER);
-  //int nTime = abs(((millis() % updateTime) - updateTime))
   text("Next update in "+ (updateTime - nTime) +" seconds.", width/2, height-7);
 }
