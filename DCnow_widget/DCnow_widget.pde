@@ -1,10 +1,11 @@
-//import processing.sound.*;
-//SoundFile ding;
+import processing.sound.*;
+SoundFile connect;
+SoundFile disconnect;
 
 //General
 int tSize = 11;
 int tSpace = 3;
-int updateTime = 60;
+int updateTime = 15;
 
 //Fonts
 PFont lib11;
@@ -16,6 +17,10 @@ color green = #81F495;
 color gameColor = #3F43BA;
 color white = #EBEBEB;
 
+int lastPlayerCount = 0;
+JSONArray activePlayer;
+JSONArray player;
+
 void setup()
 {
   size(200, 300);
@@ -24,11 +29,17 @@ void setup()
   lib15 = loadFont("font15.vlw");
   lib11 = loadFont("font11.vlw");
 
-  //ding = new SoundFile(this, "radio.wav");
+  connect = new SoundFile(this, "S2_35.wav");
+  connect.amp(0.25);
+  disconnect = new SoundFile(this, "S2_23.wav");
+  disconnect.amp(0.25);
+  activePlayer = new JSONArray();
+  getOnlinePlayers();
   noStroke();
   display();
   //ellipseMode(CENTER);
   //textAlign(LEFT,TOP);
+  //noLoop();
 }
 
 void draw()
@@ -44,25 +55,19 @@ void draw()
 void display()
 {
   background(#151228);
-  textSize(15);
-  textAlign(LEFT);
-  fill(white);
-  textFont(lib15);
-  text("Dreamcast Online", 10, 25);
   getOnlinePlayers();
+  displayPlayers();
+  displayTitle();
 }
 
 
 void getOnlinePlayers()
 {
-  int c = 0;
   int cPlayer = 0;
   JSONObject p;
   JSONObject data;
-  JSONArray player;
   int totalUser;
-  int playerOnline;
-  
+
   data = loadJSONObject("http://dreamcast.online/now/api/users.json");
   totalUser = data.getInt("total_count");
   player = data.getJSONArray("users");
@@ -70,35 +75,45 @@ void getOnlinePlayers()
   for (int i = 0; i < totalUser; i++)
   {
     p = player.getJSONObject(i);
-    if (p.getBoolean("online") == true)
+    if (p.getBoolean("online") == true && !checkPlayer(p.getString("username")))
     {
+      println("Adding : "+ p.getString("username"));
+      activePlayer.append(p);
+    }
+    if (p.getBoolean("online") == false && checkPlayer(p.getString("username")))
+    {
+      print("Removing : "+ p.getString("username"));
+      disconnect.play();
+      removePlayer(p.getString("username"));
+    }
+  }
+  if (activePlayer.size() > lastPlayerCount)
+    connect.play();
+  if (activePlayer.size() < lastPlayerCount)
+    disconnect.play();
+
+  lastPlayerCount = activePlayer.size();
+}
+
+void displayPlayers()
+{
+  int line = 0;
+  if (activePlayer.size() > 0)
+  {
+    for (int i = 0; i < activePlayer.size(); i++)
+    {
+      JSONObject p = activePlayer.getJSONObject(i);
+      textAlign(LEFT);
       textFont(lib11);
       textSize(tSize);
       fill(green);
-      ellipse(10, 37 + (c*(tSize + tSpace)), 5, 5);
-      text(p.getString("username"), 15, 40 + (c * (tSize + tSpace)));
-      c++;
+      ellipse(13, 37 + (line * (tSize + tSpace)), 5, 5);
+      text(p.getString("username"), 22, 40 + (line * (tSize + tSpace)));
+      line++;
       fill(gameColor);
-      text(p.getString("current_game"), 30, 40 + (c * (tSize + tSpace)));
-      println(p.getString("username"));
-      c++;
-      cPlayer++;
+      text(p.getString("current_game"), 30, 40 + (line * (tSize + tSpace)));
+      //println(p.getString("username"));
+      line++;
     }
   }
-  //if (cPlayer > playerOnline)
-  //ding.play();
-}
-
-void updateTime()
-{
-  int h = 20;
-  int nTime = (millis() / 1000) % updateTime;
-
-  fill(gameColor);
-  rect(0, height-h, width, h);
-  fill(green);
-  textSize(11);
-  textFont(lib11);
-  textAlign(CENTER);
-  text("Next update in "+ (updateTime - nTime) +" seconds.", width/2, height-7);
 }
