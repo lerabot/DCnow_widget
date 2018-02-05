@@ -18,5 +18,8 @@ You might need to install Java 8 in order to run this.
 
 ![screencap](https://lerabot.neocities.org/v02gif.gif)
 
+### Releases / Builds
+Check in the releases folder.
+
 ### License
 GPL. Do whatever.
