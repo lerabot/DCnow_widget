@@ -5,54 +5,43 @@ import android.app.Activity;
 KetaiGesture gesture;
 
 //General
-int tSize = 11;
-int tSpace = 20;
+int tSize = 25;
+int tSpace = 0;
 int updateTime = 60;
+float border;
 
 //Fonts
 PFont lib11;
 PFont lib15;
 
 //Colors
-color dark = #151228;
-color green = #81F495;
-color gameColor = #3F43BA;
+//https://coolors.co/272932-adbac6-60656f-d5a021-226ce0
+color dark = #272932;
+color green = #226CE0;
+color light = #ADBAC6;
+color gameColor = #D5A021;
 color white = #EBEBEB;
 
 int lastPlayerCount = 0;
+StringList gameList;
 JSONArray activePlayer;
 JSONArray player;
 boolean resume = false;
 
 void setup()
 {
-  //size(200, 300);
   fullScreen();
-  //surface.setTitle("Dreamcast Now Widget");
-  //noSmooth();
-  noStroke();
-
-  textFont(createFont("FreeSans.ttf", 11 * displayDensity));
-  tSize = int(22 * displayDensity);
-  //textSize(50);
+  //noStroke();
+  textFont(createFont("Assistant-Light.ttf", tSize * displayDensity));
+  tSize = int(tSize * displayDensity);
 
   //ANDROID////////////////////////////
   gesture = new KetaiGesture(this);
+  border = 15 * displayDensity;
 
-
-
-  //sound stuff
-  /*
-  minim = new Minim(this);
-   connect = minim.loadFile("S2_35.wav");
-   connect.setVolume(0.25);
-   disconnect = minim.loadFile("S2_23.wav");
-   disconnect.setVolume(0.25);
-   */
   //get first data
   activePlayer = new JSONArray();
   getOnlinePlayers();
-  display();
 }
 
 void onResume() {
@@ -63,9 +52,10 @@ void onResume() {
 
 void draw()
 {
-  background(#151228);
+  background(dark);
   updateTime();
-  
+  displayUpdate();
+
   if (resume == true)
     getOnlinePlayers();
 
@@ -74,19 +64,10 @@ void draw()
     resume = true;
   }
 
-  displayPlayers();
-  displayTitle(); 
+  displayGamePlayer();
+  displayTitle();
   delay(10);
 }
-
-void display()
-{
-  background(#151228);
-  getOnlinePlayers();
-  displayPlayers();
-  displayTitle();
-}
-
 
 void getOnlinePlayers()
 {
@@ -99,9 +80,9 @@ void getOnlinePlayers()
   //connect.rewind();
   println("Refreshing players");
   data = loadJSONObject("http://dreamcast.online/now/api/users.json");
+  //data = loadJSONObject("data_test.json");
   totalUser = data.getInt("total_count");
   player = data.getJSONArray("users");
-
   for (int i = 0; i < totalUser; i++)
   {
     p = player.getJSONObject(i);
@@ -117,47 +98,44 @@ void getOnlinePlayers()
       removePlayer(p.getString("username"));
     }
   }
-  /*
-  if (activePlayer.size() > lastPlayerCount)
-   connect.play();
-   if (activePlayer.size() < lastPlayerCount)
-   disconnect.play();
-   */
   lastPlayerCount = activePlayer.size();
+
+  gameList = new StringList();
+  for (int i = 0; i < lastPlayerCount; i++) {
+    p = player.getJSONObject(i);
+    if (!gameList.hasValue(p.getString("current_game")))
+      gameList.append(p.getString("current_game"));
+  }
   resume = false;
-  delay(10);
 }
 
-void displayPlayers()
+void displayGamePlayer()
 {
-  int line = 1;
-  stroke(120, 50);
-  strokeWeight(15);
-  strokeCap(SQUARE);
+  int line = 3;
   if (activePlayer.size() > 0)
   {
-    for (int i = 0; i < activePlayer.size(); i++)
-    {
-      ////////////LINE///////////
-
-      PVector start = new PVector(22 * displayDensity, 40 * displayDensity + (line * (tSize + tSpace)));
-      line(start.x, start.y, width - 20, start.y);
-
-      JSONObject p = activePlayer.getJSONObject(i);
+    for  (String game : gameList) {
+      ///////////GAME///////////////
       textAlign(LEFT);
-      //textFont(lib11);
       textSize(tSize);
       fill(green);
-      //ellipse(13 * displayDensity, 37 * displayDensity + (line * (tSize + tSpace)), 5 * displayDensity, 5 * displayDensity);
-      text(p.getString("username"), 22 * displayDensity, 40 * displayDensity + (line * (tSize + tSpace)));
-      //line++;
-      textSize(tSize*0.75);
-      textAlign(RIGHT);
-      fill(gameColor);
-      text(p.getString("current_game"), 400 * displayDensity, 40 * displayDensity + (line * (tSize + tSpace)));
-
-
-      //println(p.getString("username"));
+      text(game, border, line * tSize);
+      line++;
+      for (int i = 0; i < activePlayer.size(); i++)
+      {
+        JSONObject p = activePlayer.getJSONObject(i);
+        if (p.getString("current_game").equals(game)) {
+          ////////////LINE///////////
+          PVector start = new PVector(border, line * tSize);
+          fill(30);
+          textSize(tSize*0.75);
+          rect(start.x, start.y - 10, textWidth(p.getString("username")) + border * 2, tSize/3);
+          ////////////PLAYER//////////
+          fill(gameColor);
+          text(p.getString("username"), border * 2, line * tSize);
+          line++;
+        }
+      }
       line++;
     }
   }

@@ -31,32 +31,32 @@ void removePlayer(String playerName)
 }
 
 float rTime;
-
 void updateTime()
 {
   float h = 20 * displayDensity;
   int nTime = (millis() / 1000) % updateTime;
 
-  fill(gameColor);
-  rect(0, height-h, width, h);
   fill(green);
+  rect(0, height-h, width, h);
+  fill(gameColor);
   textSize(tSize*0.75);
   //textFont(lib11);
   textAlign(CENTER, CENTER);
   text("Next update in "+ (updateTime - nTime) +" seconds.", width/2, height - h/2);
-  
-  if(resume == true)
+}
+
+void displayUpdate() {
+
+  if (resume == true)
     rTime = 255;
-  
-  if(rTime > 0)
-    rTime -= 5;
-  
+
+  if (rTime > 0)
+    rTime -= 3;
+
   textSize(tSize*0.75);
   fill(200, rTime);
-  textAlign(CENTER, CENTER);
-  //stroke(30);
-  //line(0, h*3, width, h*3);
-  text("data updated", width/2, height - h * 2);
+  textAlign(RIGHT);
+  text("data updated", width - border, border* 2);
 }
 
 void displayTitle()
@@ -64,13 +64,13 @@ void displayTitle()
   textSize(tSize*0.75);
   textAlign(LEFT);
   fill(white);
-  text( activePlayer.size() +" DreamPi Online", 22 * displayDensity, 30 * displayDensity);
+  text( activePlayer.size() +" DreamPi Online", border, border * 2);
 
   textSize(tSize*0.5);
   textAlign(RIGHT);
   fill(#B7B7B7);
-  text("data by dreamcast.online/now/", 400 * displayDensity, 20 * displayDensity);
-  text("app by magnes-dc.tumblr.com", 400 * displayDensity, 30 * displayDensity);
+  //text("data by dreamcast.online/now/", 400 * displayDensity, 20 * displayDensity);
+  //text("app by magnes-dc.tumblr.com", 400 * displayDensity, 30 * displayDensity);
 }
 
 void onFlick( float x, float y, float px, float py, float v)
