@@ -1,7 +1,9 @@
 import ddf.minim.*;
 import java.util.*;
 
-//Minim minim;
+Minim minim;
+AudioPlayer connect;
+AudioPlayer disconnect;
 
 //General
 int tSize = 15;
@@ -22,6 +24,7 @@ color gameColor = #D5A021;
 color white = #EBEBEB;
 
 int lastPlayerCount = 0;
+StringList gameList;
 JSONArray activePlayer;
 JSONArray player;
 boolean resume = false;
@@ -45,13 +48,13 @@ void setup()
 
 
   //sound stuff
-  /*
+
   minim = new Minim(this);
-   connect = minim.loadFile("S2_35.wav");
-   connect.setVolume(0.25);
-   disconnect = minim.loadFile("S2_23.wav");
-   disconnect.setVolume(0.25);
-   */
+  connect = minim.loadFile("S2_35.wav");
+  connect.setVolume(0.25);
+  disconnect = minim.loadFile("S2_23.wav");
+  disconnect.setVolume(0.25);
+
   //get first data
   activePlayer = new JSONArray();
   getOnlinePlayers();
@@ -84,10 +87,11 @@ void getOnlinePlayers()
   JSONObject data;
   int totalUser;
 
-  //disconnect.rewind();
-  //connect.rewind();
+  disconnect.rewind();
+  connect.rewind();
   println("Refreshing players");
   data = loadJSONObject("http://dreamcast.online/now/api/users.json");
+  //data = loadJSONObject("data_test.json");
   totalUser = data.getInt("total_count");
   player = data.getJSONArray("users");
   for (int i = 0; i < totalUser; i++)
@@ -95,25 +99,26 @@ void getOnlinePlayers()
     p = player.getJSONObject(i);
     if (p.getBoolean("online") == true && !checkPlayer(p.getString("username")))
     {
+      connect.play();
       println("Adding : "+ p.getString("username"));
       activePlayer.append(p);
     }
     if (p.getBoolean("online") == false && checkPlayer(p.getString("username")))
     {
       print("Removing : "+ p.getString("username"));
-      //disconnect.play();
+      disconnect.play();
       removePlayer(p.getString("username"));
     }
   }
   lastPlayerCount = activePlayer.size();
 
-  StringList gameList = new StringList();
+  gameList = new StringList();
   for (int i = 0; i < lastPlayerCount; i++) {
     p = player.getJSONObject(i);
     if (!gameList.hasValue(p.getString("current_game")))
       gameList.append(p.getString("current_game"));
   }
-   
+
 
   resume = false;
   delay(10);
@@ -122,28 +127,30 @@ void getOnlinePlayers()
 void displayPlayers2()
 {
   int line = 3;
-  stroke(30);
-  strokeWeight(5);
-  strokeCap(SQUARE);
   if (activePlayer.size() > 0)
   {
-    for (int i = 0; i < activePlayer.size(); i++)
-    {
-      ////////////LINE///////////
-      PVector start = new PVector(border * displayDensity, line * tSize);
-      line(start.x, start.y, width - border, start.y);
-      ////////////PLAYER//////////
-      JSONObject p = activePlayer.getJSONObject(i);
+    for  (String game : gameList) {
+      ///////////GAME///////////////
       textAlign(LEFT);
       textSize(tSize);
       fill(green);
-      //ellipse(13 * displayDensity, 37 * displayDensity + (line * (tSize + tSpace)), 5 * displayDensity, 5 * displayDensity);
-      text(p.getString("current_game"), border * displayDensity, line * tSize);
-      //line++;
-      textSize(tSize*0.75);
-      textAlign(RIGHT);
-      fill(gameColor);
-      text(p.getString("username"), (width-border) * displayDensity, line * tSize);
+      text(game, border * displayDensity, line * tSize);
+      line++;
+      for (int i = 0; i < activePlayer.size(); i++)
+      {
+        JSONObject p = activePlayer.getJSONObject(i);
+        if (p.getString("current_game").equals(game)) {
+          ////////////LINE///////////
+          PVector start = new PVector(border * displayDensity, line * tSize);
+          fill(30);
+          textSize(tSize*0.75);
+          rect(start.x, start.y - 3, textWidth(p.getString("username")) + border * 2, tSize/2);
+          ////////////PLAYER//////////
+          fill(gameColor);
+          text(p.getString("username"), (border*2) * displayDensity, line * tSize);
+          line++;
+        }
+      }
       line++;
     }
   }
