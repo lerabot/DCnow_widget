@@ -23,6 +23,7 @@ color gameColor = #D5A021;
 color white = #EBEBEB;
 
 int lastPlayerCount = 0;
+int psoPlayer = 0;
 StringList gameList;
 JSONArray activePlayer;
 JSONArray player;
@@ -106,6 +107,11 @@ void getOnlinePlayers()
     if (!gameList.hasValue(p.getString("current_game")))
       gameList.append(p.getString("current_game"));
   }
+  
+  psoPlayer = getPSOPlayer();
+  if (psoPlayer > 0 && !gameList.hasValue("Phantasy Star Online"))
+    gameList.append("Phantasy Star Online");
+    
   resume = false;
 }
 
@@ -120,6 +126,13 @@ void displayGamePlayer()
       textSize(tSize);
       fill(green);
       text(game, border, line * tSize);
+      if (game.equals("Phantasy Star Online")) {
+        line++;
+        //textAlign(RIGHT);
+        //fill(gameColor);
+        textSize(tSize*0.75);
+        text( psoPlayer + " hunters on Sylverant", border * 2, line * tSize);
+      }
       line++;
       for (int i = 0; i < activePlayer.size(); i++)
       {

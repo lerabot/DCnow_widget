@@ -31,7 +31,6 @@ void removePlayer(String playerName)
 }
 
 float rTime;
-
 void updateTime()
 {
   float h = 20 * displayDensity;
@@ -74,6 +73,20 @@ void displayTitle()
   fill(#B7B7B7);
   //text("data by dreamcast.online/now/", width/2, height - 30 * displayDensity);
   //text("app by magnes-dc.tumblr.com", width/2, height - 40 * displayDensity);
+}
+
+int getPSOPlayer() {
+  JSONObject pso = loadJSONObject("https://wsgi.sylverant.net/status.py?format=json");
+  JSONArray ships =  pso.getJSONArray("ships");
+  int totalPlayer = 0;
+  
+  
+  for(int i = 0 ; i < ships.size(); i++) {
+    JSONObject s = ships.getJSONObject(i);
+    totalPlayer += s.getInt("connections");
+  }
+  println(totalPlayer);
+  return(totalPlayer);
 }
 
 /*

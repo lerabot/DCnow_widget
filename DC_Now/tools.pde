@@ -30,6 +30,20 @@ void removePlayer(String playerName)
   }
 }
 
+int getPSOPlayer() {
+  JSONObject pso = loadJSONObject("https://wsgi.sylverant.net/status.py?format=json");
+  JSONArray ships =  pso.getJSONArray("ships");
+  int totalPlayer = 0;
+  
+  
+  for(int i = 0 ; i < ships.size(); i++) {
+    JSONObject s = ships.getJSONObject(i);
+    totalPlayer += s.getInt("connections");
+  }
+  println(totalPlayer);
+  return(totalPlayer);
+}
+
 float rTime;
 void updateTime()
 {

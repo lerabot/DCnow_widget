@@ -1,3 +1,8 @@
+////////////////////////////////////////////
+//
+//SOURCES - Sylverant - https://wsgi.sylverant.net/status.py?format=json
+//////////////////////////////////////////////
+
 import ddf.minim.*;
 import java.util.*;
 
@@ -24,6 +29,7 @@ color gameColor = #D5A021;
 color white = #EBEBEB;
 
 int lastPlayerCount = 0;
+int psoPlayer = 0;
 StringList gameList;
 JSONArray activePlayer;
 JSONArray player;
@@ -33,27 +39,19 @@ int displayDensity = 1;
 
 void setup()
 {
-  size(300, 400);
-  //fullScreen();
+  size(250, 400);
   surface.setTitle("DC_Now");
   noSmooth();
   noStroke();
   lib15 = loadFont("font15.vlw");
-  //textFont(lib15);
   tSize = int(tSize * displayDensity);
 
-  //ANDROID////////////////////////////
-  //gesture = new KetaiGesture(this);
-
-
-
   //sound stuff
-
   minim = new Minim(this);
   connect = minim.loadFile("S2_35.wav");
-  connect.setVolume(0.25);
+  connect.setVolume(0.2);
   disconnect = minim.loadFile("S2_23.wav");
-  disconnect.setVolume(0.25);
+  disconnect.setVolume(0.2);
 
   //get first data
   activePlayer = new JSONArray();
@@ -74,7 +72,7 @@ void draw()
   }
 
   displayUpdate();
-  displayPlayers2();
+  displayPlayers();
   displayTitle(); 
   delay(10);
 }
@@ -112,29 +110,43 @@ void getOnlinePlayers()
   }
   lastPlayerCount = activePlayer.size();
 
+  
+
   gameList = new StringList();
   for (int i = 0; i < lastPlayerCount; i++) {
     p = player.getJSONObject(i);
     if (!gameList.hasValue(p.getString("current_game")))
       gameList.append(p.getString("current_game"));
   }
-
+  
+  psoPlayer = getPSOPlayer();
+  if (psoPlayer > 0 && !gameList.hasValue("Phantasy Star Online"))
+    gameList.append("Phantasy Star Online");
+    
 
   resume = false;
   delay(10);
 }
 
-void displayPlayers2()
+void displayPlayers()
 {
   int line = 3;
+
   if (activePlayer.size() > 0)
   {
     for  (String game : gameList) {
       ///////////GAME///////////////
       textAlign(LEFT);
       textSize(tSize);
-      fill(green);
+      fill(green);        
       text(game, border * displayDensity, line * tSize);
+      if (game.equals("Phantasy Star Online")) {
+        line++;
+        //textAlign(RIGHT);
+        //fill(gameColor);
+        textSize(tSize*0.75);
+        text( psoPlayer + " hunters on Sylverant", border * displayDensity, line * tSize);
+      }
       line++;
       for (int i = 0; i < activePlayer.size(); i++)
       {
@@ -143,45 +155,15 @@ void displayPlayers2()
           ////////////LINE///////////
           PVector start = new PVector(border * displayDensity, line * tSize);
           fill(30);
-          textSize(tSize*0.75);
           rect(start.x, start.y - 3, textWidth(p.getString("username")) + border * 2, tSize/2);
           ////////////PLAYER//////////
+          textAlign(LEFT);
           fill(gameColor);
+          textSize(tSize*0.75);
           text(p.getString("username"), (border*2) * displayDensity, line * tSize);
           line++;
         }
       }
-      line++;
-    }
-  }
-  noStroke();
-}
-
-void displayPlayers()
-{
-  int line = 3;
-  stroke(30);
-  strokeWeight(5);
-  strokeCap(SQUARE);
-  if (activePlayer.size() > 0)
-  {
-    for (int i = 0; i < activePlayer.size(); i++)
-    {
-      ////////////LINE///////////
-      PVector start = new PVector(border * displayDensity, line * tSize);
-      line(start.x, start.y, width - border, start.y);
-      ////////////PLAYER/////////
-      JSONObject p = activePlayer.getJSONObject(i);
-      textAlign(LEFT);
-      textSize(tSize);
-      fill(green);
-      //ellipse(13 * displayDensity, 37 * displayDensity + (line * (tSize + tSpace)), 5 * displayDensity, 5 * displayDensity);
-      text(p.getString("username"), border * displayDensity, line * tSize);
-      //line++;
-      textSize(tSize*0.75);
-      textAlign(RIGHT);
-      fill(gameColor);
-      text(p.getString("current_game"), (width-border) * displayDensity, line * tSize);
       line++;
     }
   }
