@@ -1,3 +1,5 @@
+## DCnow_widget
+
 I found myself refreshing http://dreamcast.online/now/ webpage quite alot and told myself that I should just make a little app that fetchs the data and alerts me if a new player comes online. It's not 100% done and I haven't made the windows/macosx/linux package yet, but they should be ready soon.
 
 Also, I'm using Kazade's data to do this, as he provided the .json file openly, if there's a problem Kazade, please let me know.
